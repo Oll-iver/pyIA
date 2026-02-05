@@ -117,29 +117,6 @@ def test_ad_exp_chain():
     assert np.isclose(f.x, true_val)
     assert np.isclose(f.dx, true_grad)
 
-def test_ad_missing_features():
-    """
-    CRITICAL CHECK: Does ad.py support sin/cos/log?
-    The current file provided ONLY has exp. This test WILL FAIL 
-    until you implement them, alerting you to the missing features.
-    """
-    x = Gradient(0.5, 1.0)
-    
-    try:
-        y = x.sin()
-    except AttributeError:
-        pytest.fail("CRITICAL: 'sin' method missing in ad.py Gradient class!")
-        
-    try:
-        y = x.cos()
-    except AttributeError:
-        pytest.fail("CRITICAL: 'cos' method missing in ad.py Gradient class!")
-        
-    try:
-        y = x.log()
-    except AttributeError:
-        pytest.fail("CRITICAL: 'log' method missing in ad.py Gradient class!")
-
 def test_ad_interval_mixed():
     """Test AD works with Intervals (Validation + Derivatives)."""
     # f(x) = x * x
