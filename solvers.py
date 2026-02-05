@@ -160,8 +160,6 @@ def verifynlss(f, xs):
     
     val_check = f(initvar(xs_int)) 
     Z = -Interval(R) @ val_check.x
-    
-    # 3. Initialize Inclusion Candidate Y (Epsilon Inflation)
     X = Z # Initial center
     
     # Hull of [-1, 1] for inflation
@@ -185,7 +183,7 @@ def verifynlss(f, xs):
         #    We need the Jacobian J evaluated over the Interval X.
         #    This captures ALL slopes in the region.
         
-        x_ad_interval = initvar(xs_int + X) # Initialize AD with Interval X
+        x_ad_interval = initvar(xs_int + X) #
         y_interval = f(x_ad_interval)       # Evaluate to get Interval Jacobian
         
         # C = I - R * Jacobian(X)
@@ -196,7 +194,6 @@ def verifynlss(f, xs):
         Y_new = Z + (C @ X)
         
         # 5. Check Intersection / Convergence
-        #    If Y_new is strictly inside X, Brouwer's Fixed Point Theorem applies!
         if Y_new.in0(X):
             ready = True
             # Optional: Intersect to tighten
@@ -222,13 +219,13 @@ def sparselss(A: SparseIntervalMatrix, b: Interval):
     # 1. Approximate Solution (Floating Point)
     xs = spla.spsolve(A.mid, b.mid)
 
-    # 2. Sigma Min Estimation (Smart Hybrid Approach)
+    # 2. Sigma Min Estimation 
     
     sigma = None
     
     # Calculate Gershgorin Lower Bound:
     # LB_i = |A_ii| - sum(|A_ij| for j != i)
-    # This is equivalent to: 2*|A_ii| - sum(|Row_i|)
+    # This is equivalent to 2*|A_ii| - sum(|Row_i|)
     
     # Get diagonal elements
     diag = A.mid.diagonal()
@@ -246,13 +243,7 @@ def sparselss(A: SparseIntervalMatrix, b: Interval):
         # Case 1: Matrix is Strictly Diagonally Dominant
         sigma = min_gersh
     else:
-        # Case 2: Matrix is not Diagonally Dominant 
-        # We must use the expensive iterative solver.
-        try:
-            vals = spla.eigsh(A.mid, k=1, which='SA', return_eigenvectors=False)
-            sigma = vals[0] * 0.99 # Safety margin
-        except Exception:
-            return None
+        return None
 
     if sigma <= 0:
         return None 

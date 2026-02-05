@@ -74,13 +74,6 @@ class Interval:
     # --- Arithmetic Operations ---
 
     def __add__(self, other):
-        """
-        Here and in many other places in this file we'll use setround.
-        setround(-1) rounds DOWN. It is a requirement that no matter what, we round the lower bound down and
-        the upper bound up, otherwise we run the risk of rounding the lower bound up and losing values that 
-        should be included in the interval. setround(1) dies the opposite. setround(0) is default Python.
-        setround is a permanent change and so every time we use it we have to re-set setround(0). 
-        """
         if not isinstance(other, Interval):
             other = Interval(other)
         setround(-1) # Down
@@ -93,7 +86,6 @@ class Interval:
         return Interval(lo, hi)
     
     def __radd__(self, other):
-        """Reflected add: float + Interval"""
         return self.__add__(other)
 
     def __sub__(self, other):
@@ -107,8 +99,6 @@ class Interval:
         return Interval(lo, hi)
     
     def __rsub__(self, other):
-        """Reflected sub: float - Interval"""
-        # Convert 'other' (float) to Interval, then subtract 'self'
         if not isinstance(other, Interval):
             other = Interval(other)
         return other.__sub__(self)
@@ -123,7 +113,6 @@ class Interval:
         # 2. Interval * Interval (Elementwise)
         # Note: This is NOT Matrix Multiplication. See __matmul__ for that.
         setround(-1)
-        # 4 combinations for lower bound
         p1 = self.inf * other.inf
         p2 = self.inf * other.sup
         p3 = self.sup * other.inf
@@ -131,7 +120,6 @@ class Interval:
         lo = np.minimum(np.minimum(p1, p2), np.minimum(p3, p4))
 
         setround(1)
-        # 4 combinations for upper bound
         p1 = self.inf * other.inf
         p2 = self.inf * other.sup
         p3 = self.sup * other.inf
@@ -280,19 +268,13 @@ class Interval:
 
     def in0(self, other):
         """
-        Checks if 'self' is strictly in the interior of 'other'.
         Returns True only if self is entirely inside other.
-        Used for convergence checks.
         """
         return np.all(other.inf < self.inf) and np.all(self.sup < other.sup)
     
-    # --- Add these to Interval class in intlab.py ---
-
     def intersect(self, other):
         """
-        Returns NaN interval if empty. WARNING: 
-        NaN can be continued from here to other calculations, propagating errors.
-        If a NaN value is expected at the end, proceed, otherwise be careful using this function.
+        Returns NaN interval if empty.
         """
         if not isinstance(other, Interval):
             other = Interval(other)
@@ -330,7 +312,7 @@ class Interval:
         I = Interval(np.eye(n))
         return verifylss(self, I)
 
-    # --- Standard Functions (Monotonic Examples) ---
+    # --- Standard Functions ---
     
     def exp(self):
         setround(-1)
@@ -363,9 +345,7 @@ class Interval:
         return Interval(lo, hi)
         
     def sin(self):
-        """
-        Rigorous Interval Sine.
-        
+        """        
         Handles non-monotonicity by explicitly checking for:
         1. Peaks (pi/2 + 2k*pi) -> Sets upper bound to 1.0
         2. Troughs (3pi/2 + 2k*pi) -> Sets lower bound to -1.0
@@ -443,7 +423,7 @@ def midrad(mid, rad):
 
 def get_power_10_interval(exponent):
     """
-    Returns a rigorous Interval for 10^exponent.
+    Returns an Interval for 10^exponent.
     """
     if exponent in _POWER_10_CACHE:
         return _POWER_10_CACHE[exponent]
@@ -493,8 +473,7 @@ def parse_decimal_string(s):
 
 def str2interval(s):
     """
-    Rigorous string-to-interval conversion using integer arithmetic 
-    and verified powers of 10.
+    string-to-interval conversion using integer arithmetic  and verified powers of 10.
     Implementation of Algorithm 4.2 / 4.3 from INTLAB - INTERVAL LABORATORY by Rump.
     """
     try:
